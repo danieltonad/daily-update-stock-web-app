@@ -1,10 +1,10 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-# from settings import settings
+from settings import settings
 # from services.stocks import 
 
 
 def test_me():
-    print("test me")
+    print("test me" + settings.YF_SYMBOLS_URL)
 
 
 def cron_execute():

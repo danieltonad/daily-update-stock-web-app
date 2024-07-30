@@ -53,7 +53,7 @@ def fetch_stocks_data():
     print("in-stock")
     from time import time
     start  = time()
-    symbols = fetch_us_symbols(limit=10)
+    symbols = fetch_us_symbols(limit=30)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details
@@ -68,12 +68,12 @@ def fetch_stocks_data():
     
     # trigger crossovers in background
     # if crossovers:
-    message = ", ".join(crossovers)[:-1]
-    print(message)
+    message = '", ".join(crossovers)[:-1]'
+    # print(message)
     trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
     
     # update notify
-    trigger_pusher(channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
+    # trigger_pusher(channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
     
     print(f"Execution time: {time() - start:.2f}")
 
