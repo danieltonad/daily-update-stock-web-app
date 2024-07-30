@@ -4,9 +4,10 @@ from settings import settings
 from logger import app_log
 from pandas import read_csv, Series
 import io, threading
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
-# from pytickersymbols import PyTickerSymbols
-
+from config.database import stocks_db
+from utils import split_list
 
 
 RESULT_LOCK = threading.Lock()
@@ -25,7 +26,7 @@ def fetch_us_symbols(limit: bool | int = False):
             csv_data = read_csv(io.StringIO(respnse.text))
             csv_data = csv_data[csv_data["country"] == "United States"]
             
-            symbols_name = "Name"
+            symbols_name = "Symbol"
             if symbols_name in csv_data.columns:
                 symbols: list = csv_data[symbols_name].tolist()
                 return symbols if not limit else symbols[:limit]
@@ -39,23 +40,29 @@ def fetch_us_symbols(limit: bool | int = False):
 def calculate_moving_average(prices, window):
     return prices.rolling(window=window).mean()
 
+
 def spot_crossover(series: Series):
         return True if len(series[series == True]) else False
+
 
 # Fetch stock data
 def fetch_stocks_data() -> tuple:
     symbols = fetch_us_symbols(limit=100)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
-    # custom_criteria('AAPL')
     
     # multi-thread stock data details
     with ThreadPoolExecutor() as executor:
         app_log(title="INFO", msg="Fetching data..")
         futures = [executor.submit(custom_criteria, symbol) for symbol in symbols]
-        app_log(title="INFO", msg="completely fetched data..")
     
+    app_log(title="INFO", msg="completely fetched data..")
+    
+    update_stocks(stocks=results)
     
     return results, crossovers
+   
+   
+   
     
 def custom_criteria(symbol: str):
     global results, crossovers
@@ -87,9 +94,24 @@ def custom_criteria(symbol: str):
                 day_high = float(ticker_info.get("dayHigh", 0))
                 day_low = float(ticker_info.get("dayLow", 0))
                 # 
-                results.append({"symbol": symbol, "name": name ,"price": current_price, "volume": volume, "open": open, "high": day_high, "low": day_low })
-        
-        app_log(title="FETCHED", msg=f"{symbol}")
+                results.append({"key": symbol, "symbol": symbol, "name": name ,"price": current_price, "volume": volume, "open": open, "high": day_high, "low": day_low })
+                
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
+    
+
+def update_stocks(stocks: list):
+    stock_chunked = split_list(data=stocks, size=20)
+    # print(len(stock_chunked), stock_chunked[0])
+    for chunk in stock_chunked:
+        stocks_db.put_many(chunk)
+    date = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+    app_log(title="INFO", msg=f"Updated Stock Data at [{date}]")
+
+
+
+async def get_saved_stocks():
+    stocks = stocks_db.fetch()._items
+    return stocks
+    
     
