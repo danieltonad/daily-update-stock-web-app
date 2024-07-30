@@ -72,9 +72,6 @@ def fetch_stocks_data():
     # print(message)
     trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
     
-    # update notify
-    # trigger_pusher(channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
-    
     print(f"Execution time: {time() - start:.2f}")
 
    
