@@ -37,9 +37,7 @@ def fetch_us_symbols(limit = False):
             
     except Exception as e:
         app_log(title="SYMBOLS_ERR", msg=e)
-        
-
-
+    
 def calculate_moving_average(prices, window):
     return prices.rolling(window=window).mean()
 

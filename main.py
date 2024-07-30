@@ -18,7 +18,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
-cron_execute()
+#  register cron on start u
+@app.on_event("startup")
+async def startup_event():
+    cron_execute()
 
 # cors 
 app.add_middleware(
@@ -36,15 +39,8 @@ async def index(request: Request):
 
 
 @app.get("/stocks", tags=["Stocks Retrieve"])
-async def test_pusher():
+async def retrieve_stock_data():
     return await get_saved_stocks()
-
-
-
-@app.get("/pusher")
-async def retrieve_stocks_data():
-    await trigger_pusher(event="test-event", channel="test-channel", message="Tesing Mic 1234")
-    
 
 #  deta custom cron
 @app.post("/cron/manual-test/actions")
