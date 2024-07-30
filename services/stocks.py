@@ -8,7 +8,6 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from config.database import stocks_db
 from utils import split_list
-from fastapi import BackgroundTasks
 from trigger import trigger_pusher
 from models.stock import stocks_serializer
 
@@ -19,7 +18,7 @@ RESULT_LOCK = threading.Lock()
 results = []
 crossovers = []
 
-async def fetch_us_symbols(limit = False):
+def fetch_us_symbols(limit = False):
     try:
         with Session() as session:
             respnse = session.get(settings.YF_SYMBOLS_URL)
@@ -50,10 +49,11 @@ def spot_crossover(series: Series):
 
 
 # Fetch stock data
-async def fetch_stocks_data(background_tasks: BackgroundTasks):
+def fetch_stocks_data():
+    print("in-stock")
     from time import time
     start  = time()
-    symbols = await fetch_us_symbols(limit=1000)
+    symbols = fetch_us_symbols(limit=10)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details
@@ -64,14 +64,16 @@ async def fetch_stocks_data(background_tasks: BackgroundTasks):
     app_log(title="INFO", msg="completely fetched data..")
     
     # update data in background
-    background_tasks.add_task(update_stocks, stocks=results)
+    update_stocks(stocks=results)
     
     # trigger crossovers in background
-    if crossovers:
-        background_tasks.add_task(trigger_pusher, channel="stock-update-channel", event="crossover-event", message=f"CrossOver-Update:\n{json.dumps(crossovers)}")
+    # if crossovers:
+    message = ", ".join(crossovers)[:-1]
+    print(message)
+    trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
     
     # update notify
-    background_tasks.add_task(trigger_pusher, channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
+    trigger_pusher(channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
     
     print(f"Execution time: {time() - start:.2f}")
 
@@ -97,8 +99,8 @@ def custom_criteria(symbol: str):
             death_cross = spot_crossover((short_ma.shift(1) < long_ma.shift(1)) & (short_ma > long_ma))
 
             if golden_cross or death_cross:
-                cross_type = "golden_cross" if golden_cross else "death_cross"
-                crossovers.append({"symbol": symbol, "cross_type": cross_type })
+                cross_type = "Golden Cross" if golden_cross else " Death Cross"
+                crossovers.append(f"{cross_type} on {symbol} ")
         
             with RESULT_LOCK:
                 name = ticker_info.get("shortName")

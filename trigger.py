@@ -11,5 +11,5 @@ pusher_client = Pusher(
 )
 
 
-async def trigger_pusher(event: str, channel: str, message: str):
+def trigger_pusher(event: str, channel: str, message: str):
     pusher_client.trigger(channels=channel, event_name=event, data=message)

@@ -16,9 +16,11 @@
     border: 1px black;
     position: fixed;
     left: 0;
-    bottom: 0;
+    bottom: -5rem;
     z-index: 10;
     background: #444b52;
     color:  white;
     padding: .15rem .3rem;
+    transition: .5s ease-in-out;
+e;
 }

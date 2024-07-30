@@ -7,7 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 from models.action import Action
-from mangum import Mangum
+from jobs.update_stock import cron_execute
+
 
 # init app
 app = FastAPI(title=settings.APP_NAME)
@@ -15,6 +16,9 @@ app = FastAPI(title=settings.APP_NAME)
 # jinja template
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+cron_execute()
 
 # cors 
 app.add_middleware(
@@ -25,7 +29,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-handler = Mangum(app)
 
 @app.get("/")
 async def index(request: Request):
@@ -44,9 +47,12 @@ async def retrieve_stocks_data():
     await trigger_pusher(event="test-event", channel="test-channel", message="Tesing Mic 1234")
     
 
-#  deta custom crom
-@app.post("/__lambda/cron/actions")
+#  deta custom cron
+@app.post("/cron/manual-test/actions")
 async def actions(action: Action, background_tasks: BackgroundTasks):
     if action.event.id == "stock_data_update":
-        background_tasks.add_task(fetch_stocks_data, background_tasks)
+        background_tasks.add_task(fetch_stocks_data)
     return "OK"
+
+
+
