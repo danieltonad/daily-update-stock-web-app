@@ -29,8 +29,9 @@ jobs:
             cd env/lib/python3.10/site-packages
             zip -r ${OLDPWD}/code.zip .
             cd ${OLDPWD}
-            zip -r code.zip . -x ".github/"
+            zip -r code.zip . -x ".github/" "env/*"
             stat -c %s code.zip
+            ls
 
       - name: AWS CLI v2
         uses: imehedi/actions-awscli-v2@latest
