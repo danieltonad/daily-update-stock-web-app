@@ -56,11 +56,11 @@ def fetch_stocks_data():
     symbols = fetch_us_symbols(limit=30)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
-    # multi-thread stock data details
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        app_log(title="INFO", msg="Fetching data..")
-        futures = [executor.submit(custom_criteria, symbol) for symbol in symbols]
-    
+    #get stock data details
+    app_log(title="INFO", msg="Fetching data..")
+    for symbol in symbols:
+        custom_criteria(symbol)
+        
     app_log(title="INFO", msg="completely fetched data..")
     
     # update data in background

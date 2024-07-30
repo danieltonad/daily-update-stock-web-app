@@ -1,14 +1,18 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from settings import settings
-# from services.stocks import 
+from services.stocks import fetch_stocks_data
+from apscheduler.triggers.cron import CronTrigger
 
 
 def test_me():
-    print("test me" + settings.YF_SYMBOLS_URL)
+    print("\n test me \n" + settings.YF_SYMBOLS_URL)
 
 
 def cron_execute():
-    print("in")
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=test_me, trigger="interval", minutes=32)
+    
+    # fetch_stocks_data()
+    scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=59))
     scheduler.start()
+    for job in scheduler.get_jobs():
+        print(job.next_run_time)
