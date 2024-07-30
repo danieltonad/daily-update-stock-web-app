@@ -12,7 +12,7 @@ def cron_execute():
     scheduler = BackgroundScheduler()
     
     # fetch_stocks_data()
-    scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=59))
+    scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=20))
     scheduler.start()
     for job in scheduler.get_jobs():
         print(job.next_run_time)

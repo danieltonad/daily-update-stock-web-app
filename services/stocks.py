@@ -53,7 +53,7 @@ def fetch_stocks_data():
     print("in-stock")
     from time import time
     start  = time()
-    symbols = fetch_us_symbols(limit=30)
+    symbols = fetch_us_symbols(limit=100)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     #get stock data details
