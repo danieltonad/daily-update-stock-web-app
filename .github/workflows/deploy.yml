@@ -26,10 +26,10 @@ jobs:
             python3 -m venv env
             source env/bin/activate
             pip3 install -r requirements.txt
-            cd env/lib/python3.12/site-packages
+            cd env/lib/python3.10/site-packages
             zip -r ${OLDPWD}/code.zip .
             cd ${OLDPWD}
-            zip -r code.zip . -x "env/*"
+            zip -r code.zip . -x ".github/"
             stat -c %s code.zip
 
       - name: AWS CLI v2
