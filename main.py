@@ -42,12 +42,5 @@ async def index(request: Request):
 async def retrieve_stock_data():
     return await get_saved_stocks()
 
-#  deta custom cron
-@app.post("/cron/manual-test/actions")
-async def actions(action: Action, background_tasks: BackgroundTasks):
-    if action.event.id == "stock_data_update":
-        background_tasks.add_task(fetch_stocks_data)
-    return "OK"
-
 
 
