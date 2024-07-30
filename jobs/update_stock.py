@@ -10,5 +10,5 @@ def test_me():
 def cron_execute():
     print("in")
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=test_me, trigger="interval", minutes=17)
+    scheduler.add_job(func=test_me, trigger="interval", minutes=32)
     scheduler.start()
