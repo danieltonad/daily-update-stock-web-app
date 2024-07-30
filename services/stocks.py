@@ -43,28 +43,28 @@ def spot_crossover(series: Series):
         return True if len(series[series == True]) else False
 
 # Fetch stock data
-def fetch_stocks_data():
-    symbols = fetch_us_symbols()
+def fetch_stocks_data() -> tuple:
+    symbols = fetch_us_symbols(limit=100)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
-    custom_criteria('AAPL')
+    # custom_criteria('AAPL')
     
     # multi-thread stock data details
-    # with ThreadPoolExecutor() as executor:
-    #     app_log(title="INFO", msg="Fetching data..")
-    #     futures = [executor.submit(custom_criteria, symbol) for symbol in symbols]
-    #     app_log(title="INFO", msg="completely fetched data..")
+    with ThreadPoolExecutor() as executor:
+        app_log(title="INFO", msg="Fetching data..")
+        futures = [executor.submit(custom_criteria, symbol) for symbol in symbols]
+        app_log(title="INFO", msg="completely fetched data..")
     
-    return results
+    
+    return results, crossovers
     
 def custom_criteria(symbol: str):
     global results, crossovers
     ticker = yf.Ticker(symbol)
-    print(ticker.info)
-    market_cap = int(ticker.info.get('marketCap', 0))
+    ticker_info = ticker.info
+    market_cap = int(ticker_info.get('marketCap', 0))
     try:
-        # print(f"{market_cap:,}")
         if market_cap >= settings.MAX_VOLUME:
-            history = ticker.history(period="1mo")
+            history = ticker.history()
             
             closed_price = history['Close']
             short_ma = calculate_moving_average(prices=closed_price, window=50)
@@ -80,8 +80,16 @@ def custom_criteria(symbol: str):
                 crossovers.append({"symbol": symbol, "cross_type": cross_type })
         
             with RESULT_LOCK:
-                results.append({"symbol": symbol, })
-        # app_log(title="FETCHED", msg=f"{symbol}")
+                name = ticker_info.get("shortName")
+                current_price = float(ticker_info.get("currentPrice", 0))
+                volume = float(ticker_info.get("volume", 0))
+                open = float(ticker_info.get("open", 0))
+                day_high = float(ticker_info.get("dayHigh", 0))
+                day_low = float(ticker_info.get("dayLow", 0))
+                # 
+                results.append({"symbol": symbol, "name": name ,"price": current_price, "volume": volume, "open": open, "high": day_high, "low": day_low })
+        
+        app_log(title="FETCHED", msg=f"{symbol}")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
     
