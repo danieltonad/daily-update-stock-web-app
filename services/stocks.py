@@ -10,6 +10,7 @@ from config.database import stocks_db
 from utils import split_list
 from fastapi import BackgroundTasks
 from trigger import trigger_pusher
+from models.stock import stocks_serializer
 
 
 RESULT_LOCK = threading.Lock()
@@ -18,7 +19,7 @@ RESULT_LOCK = threading.Lock()
 results = []
 crossovers = []
 
-async def fetch_us_symbols(limit: bool | int = False):
+async def fetch_us_symbols(limit = False):
     try:
         with Session() as session:
             respnse = session.get(settings.YF_SYMBOLS_URL)
@@ -52,7 +53,7 @@ def spot_crossover(series: Series):
 async def fetch_stocks_data(background_tasks: BackgroundTasks):
     from time import time
     start  = time()
-    symbols = await fetch_us_symbols(limit=100)
+    symbols = await fetch_us_symbols(limit=10)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details
@@ -125,6 +126,6 @@ def update_stocks(stocks: list):
 
 async def get_saved_stocks():
     stocks = stocks_db.fetch()._items
-    return stocks
+    return stocks_serializer(stocks)
     
     

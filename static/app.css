@@ -1,0 +1,24 @@
+.custom-header{
+    font-size: 1.75rem !important;
+}
+
+.sub-head{
+    background-color: #494a4c;
+    color: rgb(246, 238, 238);
+    font-size: .95rem;
+    letter-spacing:  1px;
+    padding: .26rem 0;
+}
+
+.notify-pop{
+    width: 100vw;
+    height: 2rem;
+    border: 1px black;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    background: #444b52;
+    color:  white;
+    padding: .15rem .3rem;
+}

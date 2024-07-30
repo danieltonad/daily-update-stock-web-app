@@ -26,7 +26,8 @@ app.add_middleware(
 
 @app.get("/")
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    stocks = await get_saved_stocks()
+    return templates.TemplateResponse("index.html", {"request": request, "data": {"stocks": stocks}})
 
 
 @app.get("/stocks", tags=["Stocks Retrieve"])
@@ -41,7 +42,14 @@ async def retrieve_stocks_data():
     
 
 #  deta custom crom
+@app.post("/__space/v1/actions")
+async def actions(action: Action, background_tasks: BackgroundTasks):
+    if action.event.id == "stock_data_update":
+        background_tasks.add_task(fetch_stocks_data, background_tasks)
+    return "Boy"
+
 @app.post("/__space/v0/actions")
 async def actions(action: Action, background_tasks: BackgroundTasks):
     if action.event.id == "stock_data_update":
         background_tasks.add_task(fetch_stocks_data, background_tasks)
+    return "Boy"
