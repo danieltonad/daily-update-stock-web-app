@@ -53,7 +53,7 @@ def spot_crossover(series: Series):
 async def fetch_stocks_data(background_tasks: BackgroundTasks):
     from time import time
     start  = time()
-    symbols = await fetch_us_symbols(limit=10)
+    symbols = await fetch_us_symbols(limit=100)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details

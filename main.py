@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 from models.action import Action
+from mangum import Mangum
 
 # init app
 app = FastAPI(title=settings.APP_NAME)
@@ -23,6 +24,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+handler = Mangum(app)
 
 @app.get("/")
 async def index(request: Request):
@@ -42,14 +45,8 @@ async def retrieve_stocks_data():
     
 
 #  deta custom crom
-@app.post("/__space/v1/actions")
+@app.post("/__lambda/cron/actions")
 async def actions(action: Action, background_tasks: BackgroundTasks):
     if action.event.id == "stock_data_update":
         background_tasks.add_task(fetch_stocks_data, background_tasks)
-    return "Boy"
-
-@app.post("/__space/v0/actions")
-async def actions(action: Action, background_tasks: BackgroundTasks):
-    if action.event.id == "stock_data_update":
-        background_tasks.add_task(fetch_stocks_data, background_tasks)
-    return "Boy"
+    return "OK"
