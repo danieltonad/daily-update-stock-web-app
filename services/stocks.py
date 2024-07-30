@@ -57,7 +57,7 @@ async def fetch_stocks_data(background_tasks: BackgroundTasks):
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         app_log(title="INFO", msg="Fetching data..")
         futures = [executor.submit(custom_criteria, symbol) for symbol in symbols]
     
