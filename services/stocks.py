@@ -2,7 +2,7 @@ import yfinance as yf
 from requests import Session
 from settings import settings
 from logger import app_log
-from pandas import read_csv
+from pandas import read_csv, Series
 import io, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 # from pytickersymbols import PyTickerSymbols
@@ -13,6 +13,7 @@ RESULT_LOCK = threading.Lock()
 
 
 results = []
+crossovers = []
 
 def fetch_us_symbols(limit: bool | int = False):
     try:
@@ -35,6 +36,12 @@ def fetch_us_symbols(limit: bool | int = False):
         app_log(title="FETCH_SYMBOLS_ERR", msg=e)
 
 
+def calculate_moving_average(prices, window):
+    return prices.rolling(window=window).mean()
+
+def spot_crossover(series: Series):
+        return True if len(series[series == True]) else False
+
 # Fetch stock data
 def fetch_stocks_data():
     symbols = fetch_us_symbols()
@@ -50,21 +57,30 @@ def fetch_stocks_data():
     return results
     
 def custom_criteria(symbol: str):
-    global result
+    global results, crossovers
     ticker = yf.Ticker(symbol)
+    print(ticker.info)
     market_cap = int(ticker.info.get('marketCap', 0))
     try:
         # print(f"{market_cap:,}")
         if market_cap >= settings.MAX_VOLUME:
-            history = ticker.history(period="1y")
-            short_ma = history['Close'].rolling(window=50).mean()
-            long_ma = history['Close'].rolling(window=200).mean()
-            golden_cross = "(short_ma[-2] < long_ma[-2]) and (short_ma[-1] > long_ma[-1])"
-            death_cross = "(short_ma[-2] > long_ma[-2]) and (short_ma[-1] < long_ma[-1])"
-            print({'symbol': symbol, 'golden_cross': golden_cross, 'death_cross': death_cross})
+            history = ticker.history(period="1mo")
+            
+            closed_price = history['Close']
+            short_ma = calculate_moving_average(prices=closed_price, window=50)
+            long_ma = calculate_moving_average(prices=closed_price, window=200)
+            #  drop NaN
+            closed_price.dropna()
+            # spot on cross_over
+            golden_cross = spot_crossover((short_ma.shift(1) < long_ma.shift(1)) & (short_ma > long_ma))
+            death_cross = spot_crossover((short_ma.shift(1) < long_ma.shift(1)) & (short_ma > long_ma))
+
+            if golden_cross or death_cross:
+                cross_type = "golden_cross" if golden_cross else "death_cross"
+                crossovers.append({"symbol": symbol, "cross_type": cross_type })
         
-        #     with RESULT_LOCK:
-        #         results.append([symbol, highest_volume, highest_volume_date])
+            with RESULT_LOCK:
+                results.append({"symbol": symbol, })
         # app_log(title="FETCHED", msg=f"{symbol}")
     except Exception as e:
         app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
