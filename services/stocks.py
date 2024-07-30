@@ -3,11 +3,13 @@ from requests import Session
 from settings import settings
 from logger import app_log
 from pandas import read_csv, Series
-import io, threading
+import io, threading, json
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from config.database import stocks_db
 from utils import split_list
+from fastapi import BackgroundTasks
+from trigger import trigger_pusher
 
 
 RESULT_LOCK = threading.Lock()
@@ -16,7 +18,7 @@ RESULT_LOCK = threading.Lock()
 results = []
 crossovers = []
 
-def fetch_us_symbols(limit: bool | int = False):
+async def fetch_us_symbols(limit: bool | int = False):
     try:
         with Session() as session:
             respnse = session.get(settings.YF_SYMBOLS_URL)
@@ -34,7 +36,8 @@ def fetch_us_symbols(limit: bool | int = False):
                 raise ValueError(f"Unable to locate `{symbols_name}` in csv_data")
             
     except Exception as e:
-        app_log(title="FETCH_SYMBOLS_ERR", msg=e)
+        app_log(title="SYMBOLS_ERR", msg=e)
+        
 
 
 def calculate_moving_average(prices, window):
@@ -46,8 +49,10 @@ def spot_crossover(series: Series):
 
 
 # Fetch stock data
-def fetch_stocks_data() -> tuple:
-    symbols = fetch_us_symbols(limit=100)
+async def fetch_stocks_data(background_tasks: BackgroundTasks):
+    from time import time
+    start  = time()
+    symbols = await fetch_us_symbols(limit=100)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     # multi-thread stock data details
@@ -57,13 +62,21 @@ def fetch_stocks_data() -> tuple:
     
     app_log(title="INFO", msg="completely fetched data..")
     
-    update_stocks(stocks=results)
+    # update data in background
+    background_tasks.add_task(update_stocks, stocks=results)
     
-    return results, crossovers
-   
-   
-   
+    # trigger crossovers in background
+    if crossovers:
+        background_tasks.add_task(trigger_pusher, channel="stock-update-channel", event="crossover-event", message=f"CrossOver-Update:\n{json.dumps(crossovers)}")
     
+    # update notify
+    background_tasks.add_task(trigger_pusher, channel="stock-update-channel", event="stock-update", message=f"Data Updates: \n ({len(results)})")
+    
+    print(f"Execution time: {time() - start:.2f}")
+
+   
+   
+   
 def custom_criteria(symbol: str):
     global results, crossovers
     ticker = yf.Ticker(symbol)
@@ -102,7 +115,7 @@ def custom_criteria(symbol: str):
 
 def update_stocks(stocks: list):
     stock_chunked = split_list(data=stocks, size=20)
-    # print(len(stock_chunked), stock_chunked[0])
+    
     for chunk in stock_chunked:
         stocks_db.put_many(chunk)
     date = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
