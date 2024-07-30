@@ -12,4 +12,5 @@ def stock_serializer(stock: dict):
     }
 
 def stocks_serializer(stocks: list):
+    stocks = sorted(stocks, key=lambda x: x['price'], reverse=True)
     return [stock_serializer(stock) for stock in stocks]

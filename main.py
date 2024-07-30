@@ -1,12 +1,10 @@
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI
 from settings import settings
-from trigger import trigger_pusher
 from services.stocks import get_saved_stocks, fetch_stocks_data
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
-from models.action import Action
 from jobs.update_stock import cron_execute
 
 
