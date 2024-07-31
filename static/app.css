@@ -1,16 +1,29 @@
+html, body{
+    margin: 0;
+    padding:  0;
+}
+
+nav {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+}
+
 .custom-header{
-    font-size: 1.75rem !important;
+    font-size: clamp(26px, 2vw, 45px) !important;
 }
 
 .sub-head{
     background-color: #494a4c;
     color: rgb(246, 238, 238);
-    font-size: .95rem;
+    font-size: clamp(12px, 2vw, 16px);
     letter-spacing:  1px;
     padding: .26rem 0;
+    margin: 0;
 }
 
-.notify-pop{
+#notify-pop{
     width: 100vw;
     border: 1px black;
     position: fixed;
@@ -19,14 +32,12 @@
     z-index: 10;
     background: #23578a;
     transition: .55s ease-in-out;
-    display:  flex;
-    flex-flow: row nowrap;
-    align-items: center;
+    display: inline-block;
 }
 
-.notify-msg {
-    color:  white;
-    font-size: 1.1rem;
-    margin: 0 1rem;
-    padding: .55rem .4rem;
+#notify-msg {
+    color:  rgb(228, 227, 227);
+    font-size: clamp(11.5px, 1.5vw, 18px);
+    padding: .35rem .34rem;
+    white-space: pre-line;
 }

@@ -10,21 +10,21 @@ channel.bind('crossover-event', function(data) {
   promp_notification(data)
 });
 
-// var channel = pusher.subscribe('stock-update-channel');
-// channel.bind('stock-update', function(data) {
-//   alert(JSON.stringify(data));
-// });
-
 
 function promp_notification(message) {
-  target = $(".notify-pop")
+  target = $("#notify-pop")
   target.css("bottom","0")
-  $(".notify-msg").text(message)
+  $("#notify-msg").text(message)
   
   // display nofification for 15 sec
   setTimeout(() => {
     target.css("bottom","-10rem")
-  }, 15000);
-
-  
+  }, 50000);
+ 
 }
+
+
+
+// $(()=> {
+//   $("#notify-msg").text("Golden Cross: AAPL, TSLA, UNH, PFE \n Death Cross: AAPL, TSLA, UNH, PFE.")
+// })

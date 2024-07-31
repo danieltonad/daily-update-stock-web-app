@@ -16,7 +16,7 @@ RESULT_LOCK = threading.Lock()
 
 
 results = []
-crossovers = []
+golden_cross_data, death_cross_data = [], []
 
 def fetch_us_symbols(limit = False):
     try:
@@ -43,15 +43,14 @@ def calculate_moving_average(prices, window):
 
 
 def spot_crossover(series: Series):
-        return True if len(series[series == True]) else False
+    return True if len(series[series == True]) else False
 
 
 # Fetch stock data
 def fetch_stocks_data():
-    print("in-stock")
     from time import time
     start  = time()
-    symbols = fetch_us_symbols(limit=100)
+    symbols = fetch_us_symbols(limit=200)
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     #get stock data details
@@ -64,11 +63,18 @@ def fetch_stocks_data():
     # update data in background
     update_stocks(stocks=results)
     
+    message, golden_msg,  death_msg = "", "", ""
     # trigger crossovers in background
-    # if crossovers:
-    message = '", ".join(crossovers)[:-1]'
-    # print(message)
-    trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
+    if golden_cross_data or death_cross_data:
+        
+        if golden_cross_data:
+            golden_msg = "Golden Cross: " + ", ".join(golden_cross_data) + "."
+        
+        if death_cross_data:
+            death_msg = "Death Cross: " + ", ".join(death_cross_data) + "."
+        message = f"{golden_msg}\n{death_msg}" if golden_msg and death_msg else f"{golden_msg}\n{death_msg}"
+        
+        trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
     
     print(f"Execution time: {time() - start:.2f}")
 
@@ -76,13 +82,13 @@ def fetch_stocks_data():
    
    
 def custom_criteria(symbol: str):
-    global results, crossovers
+    global results, golden_cross_data, death_cross_data
     ticker = yf.Ticker(symbol)
     ticker_info = ticker.info
     market_cap = int(ticker_info.get('marketCap', 0))
     try:
         if market_cap >= settings.MAX_VOLUME:
-            history = ticker.history()
+            history = ticker.history(period="1y")
             
             closed_price = history['Close']
             short_ma = calculate_moving_average(prices=closed_price, window=50)
@@ -91,11 +97,14 @@ def custom_criteria(symbol: str):
             closed_price.dropna()
             # spot on cross_over
             golden_cross = spot_crossover((short_ma.shift(1) < long_ma.shift(1)) & (short_ma > long_ma))
-            death_cross = spot_crossover((short_ma.shift(1) < long_ma.shift(1)) & (short_ma > long_ma))
+            death_cross = spot_crossover((short_ma.shift(1) > long_ma.shift(1)) & (short_ma < long_ma))
 
             if golden_cross or death_cross:
-                cross_type = "Golden Cross" if golden_cross else " Death Cross"
-                crossovers.append(f"{cross_type} on {symbol} ")
+                if death_cross:
+                    death_cross_data.append(symbol)
+                
+                if golden_cross:
+                    golden_cross_data.append(symbol)
         
             with RESULT_LOCK:
                 name = ticker_info.get("shortName")
@@ -115,7 +124,7 @@ def update_stocks(stocks: list):
     stock_chunked = split_list(data=stocks, size=20)
     
     for chunk in stock_chunked:
-        stocks_db.put_many(chunk)
+        stocks_db.put_many(chunk, expire_in=settings.EXPIRY)
     date = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
     app_log(title="INFO", msg=f"Updated Stock Data at [{date}]")
 

@@ -19,6 +19,8 @@ templates = Jinja2Templates(directory="templates")
 #  register cron on start u
 @app.on_event("startup")
 async def startup_event():
+    from services.stocks import fetch_stocks_data
+    # fetch_stocks_data()
     cron_execute()
 
 # cors 

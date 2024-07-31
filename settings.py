@@ -12,6 +12,7 @@ class Settings:
     PUSHER_SECRET: str = os.getenv("PUSHER_SECRET")
     PUSHER_CLUSTER: str = os.getenv("PUSHER_CLUSTER")
     MAX_VOLUME: int = 20_000_000_000
+    EXPIRY: int = 86_4000
     
 settings = Settings()
     
