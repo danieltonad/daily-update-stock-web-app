@@ -105,7 +105,7 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
         market_cap = int(ticker_info.get('marketCap', 0))
         try:
             if market_cap >= self.MAX_VOLUME:
-                history = ticker.history(period="1y")
+                history = ticker.history()
                 
                 closed_price = history['Close']
                 short_ma = self.__calculate_moving_average(prices=closed_price, window=50)
