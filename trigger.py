@@ -1,15 +1,21 @@
-from pusher import Pusher
-from settings import settings
+from pusher import Pusher, pusher
+from settings import Settings
 
 
-pusher_client = Pusher(
-    app_id=settings.PUSHER_APP_ID,
-    key=settings.PUSHER_KEY,
-    secret=settings.PUSHER_SECRET,
-    cluster=settings.PUSHER_CLUSTER,
-    ssl=True
-)
+
+class Triggers(Settings):
+    pusher_client = None
+    
+    def __init__(self) -> None:
+        self.pusher_client = Pusher(
+            app_id=self.PUSHER_APP_ID,
+            key=self.PUSHER_KEY,
+            secret=self.PUSHER_SECRET,
+            cluster=self.PUSHER_CLUSTER,
+            ssl=True
+        )
 
 
-def trigger_pusher(event: str, channel: str, message: str):
-    pusher_client.trigger(channels=channel, event_name=event, data=message)
+
+    def notify(self, event: str, channel: str, message: str):
+        self.pusher_client.trigger(channels=channel, event_name=event, data=message)

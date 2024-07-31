@@ -1,9 +1,11 @@
-from deta import Deta
-from settings import settings
-
-# init
-deta =  Deta()
+from deta import Deta, base
 
 
-# connect to db
-stocks_db =  deta.Base('stocks')
+
+class Database:
+    deta = None
+    stocks_db: base
+    
+    def __init__(self) -> None:
+        self.deta =  Deta()
+        self.stocks_db = self.deta.Base('stocks')
