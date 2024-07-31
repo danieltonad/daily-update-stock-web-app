@@ -9,5 +9,4 @@ class Utils(Settings):
     
     def next_job_time(self):
         date_time = datetime.now().strftime(f"%d:%m:%Y %H:{self.CRON_MINUTE}:%S")
-        print(date_time)
         return date_time
