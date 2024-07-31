@@ -14,5 +14,6 @@ class Settings(Logger):
     PUSHER_CLUSTER: str = os.getenv("PUSHER_CLUSTER")
     MAX_VOLUME: int = 20_000_000_000
     EXPIRY: int = 86_4000
-    CRON_MINUTE: int = 30
+    CRON_MINUTE: int = 50
+
     

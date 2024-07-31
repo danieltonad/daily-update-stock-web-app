@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Utils(Settings):
     
-    def split_list(data: list, size: int):
+    def split_list(self, data: list, size: int):
         return [data[i:i + size] for i in range(0, len(data), size)]
     
     def next_job_time(self):

@@ -1,6 +1,7 @@
 
 class Logger:
-    
-    def app_log(title: str, msg: str):
+    # def __init__(self) -> None:
+    #         pass
+    def app_log(self, title: str, msg: str):
         print(f"[{title}] => {str(msg)}")
     

@@ -61,13 +61,14 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
     def fetch_stocks_data(self):
         from time import time
         start  = time()
-        symbols = self.__fetch_us_symbols()
-        self.total = len(symbols)
+        self.__fetch_us_symbols()
+        
+        self.total = len(self.symbols)
         self.app_log(title="INFO", msg=f"Symbols: {self.total:,}")
         
         #get stock data details
         self.app_log(title="INFO", msg="Fetching data..")
-        for symbol in symbols:
+        for symbol in self.symbols:
             self.count += 1
             self.__detect_peak_volume_stocks(symbol)
             
@@ -130,6 +131,9 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
                 day_low = float(ticker_info.get("dayLow", 0))
                 # 
                 self.results.append({"key": symbol, "symbol": symbol, "name": name ,"price": current_price, "volume": volume, "open": open, "high": day_high, "low": day_low })
+                
+            # progress display
+            print(f"Progress: [{self.count:,} of {self.total:,}]", end="\r")
                     
         except Exception as e:
             self.app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
