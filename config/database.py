@@ -1,10 +1,10 @@
-from deta import Deta, base
+from deta import Deta, _Base
 
 
 
 class Database:
     deta = None
-    stocks_db: base
+    stocks_db: _Base
     
     def __init__(self) -> None:
         self.deta =  Deta()

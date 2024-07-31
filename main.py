@@ -1,14 +1,15 @@
 from fastapi import FastAPI
-from settings import settings
 from services.stocks import Stocks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from starlette.templating import Jinja2Templates
 from jobs.update_stock import CronJobs
+from settings import Settings
 
 
 # init app
+settings = Settings
 app = FastAPI(title=settings.APP_NAME)
 
 # jinja template

@@ -1,16 +1,15 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from services.stocks import fetch_stocks_data
+from services.stocks import Stocks
 from apscheduler.triggers.cron import CronTrigger
 
 
+class CronJobs(Stocks):
 
-class CronJobs:
-
-    def execute():
+    def execute(self):
         scheduler = BackgroundScheduler()
         
-        scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=2))
+        scheduler.add_job(func=self.fetch_stocks_data, trigger=CronTrigger(minute=self.CRON_MINUTE))
         scheduler.start()
         
         for job in scheduler.get_jobs():
-            print("Next Job: ",job.next_run_time)
+            print("Next Job: ", job.next_run_time)

@@ -6,14 +6,13 @@ from utils import Utils
 import io
 from datetime import datetime
 from config.database import Database
-from utils import split_list
 from trigger import Triggers
-from models.stock import stocks_serializer
+from models.stock import StockSerializer
 
 
 
 
-class Stocks(Settings, Triggers, Utils, Database):
+class Stocks( Triggers, Utils, Database, Settings, StockSerializer):
     results: list
     golden_cross_data: list
     death_cross_data: list
@@ -92,6 +91,8 @@ class Stocks(Settings, Triggers, Utils, Database):
             trigger.notify(channel="stock-update-channel", event="crossover-event", message=message)
         
         print(f"Execution time: {time() - start:.2f}")
+        
+        self.app_log(title="NEXT_CRON", msg=self.next_job_time())
 
    
    
@@ -134,7 +135,7 @@ class Stocks(Settings, Triggers, Utils, Database):
         
 
     def __update_stocks(self, stocks: list):
-        stock_chunked = split_list(data=stocks, size=20)
+        stock_chunked = self.split_list(data=stocks, size=20)
         
         for chunk in stock_chunked:
             self.stocks_db.put_many(chunk, expire_in=self.EXPIRY)
@@ -145,6 +146,6 @@ class Stocks(Settings, Triggers, Utils, Database):
 
     async def get_saved_stocks(self):
         stocks = self.stocks_db.fetch()._items
-        return stocks_serializer(stocks)
+        return self.serialize_many(stocks)
     
     
