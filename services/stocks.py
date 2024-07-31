@@ -61,7 +61,7 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
     def fetch_stocks_data(self):
         from time import time
         start  = time()
-        self.__fetch_us_symbols()
+        self.__fetch_us_symbols(limit=1000)
         
         self.total = len(self.symbols)
         self.app_log(title="INFO", msg=f"Symbols: {self.total:,}")
@@ -105,7 +105,7 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
         market_cap = int(ticker_info.get('marketCap', 0))
         try:
             if market_cap >= self.MAX_VOLUME:
-                history = ticker.history()
+                history = ticker.history(period="1y")
                 
                 closed_price = history['Close']
                 short_ma = self.__calculate_moving_average(prices=closed_price, window=50)
