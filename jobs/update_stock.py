@@ -10,6 +10,4 @@ class CronJobs(Stocks):
         
         scheduler.add_job(func=self.fetch_stocks_data, trigger=CronTrigger(minute=self.CRON_MINUTE))
         scheduler.start()
-        
-        for job in scheduler.get_jobs():
-            print("Next Job: ", job.next_run_time)
+        print("Next Job: ", self.next_job_time())

@@ -15,4 +15,4 @@ class StockSerializer:
 
     def serialize_many(self, stocks: list):
         stocks = sorted(stocks, key=lambda x: x['price'], reverse=True)
-        return [self.stock_serializer(stock) for stock in stocks]
+        return [self.serialize_one(stock) for stock in stocks]

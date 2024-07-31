@@ -5,14 +5,14 @@ from pandas import read_csv, Series
 from utils import Utils
 import io
 from datetime import datetime
-from config.database import Database
+from config.database import stocks_db
 from trigger import Triggers
 from models.stock import StockSerializer
 
 
 
 
-class Stocks( Triggers, Utils, Database, Settings, StockSerializer):
+class Stocks( Triggers, Utils, Settings, StockSerializer):
     results: list
     golden_cross_data: list
     death_cross_data: list
@@ -21,6 +21,7 @@ class Stocks( Triggers, Utils, Database, Settings, StockSerializer):
     total: int
     
     def __init__(self) -> None:
+        super().__init__()
         self.results = []
         self.golden_cross_data = []
         self.death_cross_data = []
@@ -138,14 +139,14 @@ class Stocks( Triggers, Utils, Database, Settings, StockSerializer):
         stock_chunked = self.split_list(data=stocks, size=20)
         
         for chunk in stock_chunked:
-            self.stocks_db.put_many(chunk, expire_in=self.EXPIRY)
+            stocks_db.put_many(chunk, expire_in=self.EXPIRY)
         date = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
         self.app_log(title="INFO", msg=f"Updated Stock Data at [{date}]")
 
 
 
     async def get_saved_stocks(self):
-        stocks = self.stocks_db.fetch()._items
+        stocks = stocks_db.fetch()._items
         return self.serialize_many(stocks)
     
     

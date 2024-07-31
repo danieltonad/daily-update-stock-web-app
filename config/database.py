@@ -1,11 +1,8 @@
-from deta import Deta, _Base
+from deta import Deta
+
+# init
+deta =  Deta()
 
 
-
-class Database:
-    deta = None
-    stocks_db: _Base
-    
-    def __init__(self) -> None:
-        self.deta =  Deta()
-        self.stocks_db = self.deta.Base('stocks')
+# connect to db
+stocks_db =  deta.Base('stocks')
