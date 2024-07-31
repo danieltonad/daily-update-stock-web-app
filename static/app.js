@@ -14,7 +14,7 @@ channel.bind('crossover-event', function(data) {
 function promp_notification(message) {
   target = $("#notify-pop")
   target.css("bottom","0")
-  $("#notify-msg").text(message)
+  $("#notify-msg").html(message)
   
   // display nofification for 15 sec
   setTimeout(() => {
@@ -22,9 +22,3 @@ function promp_notification(message) {
   }, 50000);
  
 }
-
-
-
-// $(()=> {
-//   $("#notify-msg").text("Golden Cross: AAPL, TSLA, UNH, PFE \n Death Cross: AAPL, TSLA, UNH, PFE.")
-// })
