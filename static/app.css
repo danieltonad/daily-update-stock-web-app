@@ -40,4 +40,5 @@ nav {
     font-size: clamp(11.5px, 1.5vw, 18px);
     padding: .35rem .34rem;
     white-space: pre-line;
+    font-weight: 300;
 }

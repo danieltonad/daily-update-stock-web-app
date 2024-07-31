@@ -68,10 +68,10 @@ def fetch_stocks_data():
     if golden_cross_data or death_cross_data:
         
         if golden_cross_data:
-            golden_msg = "<b>Golden Cross: <b> " + ", ".join(golden_cross_data) + "."
+            golden_msg = "<b>Golden Cross: </b> " + ", ".join(golden_cross_data) + "."
         
         if death_cross_data:
-            death_msg = "<b>Death Cross:<b> " + ", ".join(death_cross_data) + "."
+            death_msg = "<b>Death Cross:</b> " + ", ".join(death_cross_data) + "."
         message = f"{golden_msg}\n\n{death_msg}" if golden_msg and death_msg else f"{golden_msg}\n{death_msg}"
         
         trigger_pusher(channel="stock-update-channel", event="crossover-event", message=message)
