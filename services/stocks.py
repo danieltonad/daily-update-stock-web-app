@@ -133,7 +133,7 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
                 self.results.append({"key": symbol, "symbol": symbol, "name": name ,"price": current_price, "volume": volume, "open": open, "high": day_high, "low": day_low })
                 
             # progress display
-            print(f"Progress: [{self.count:,} of {self.total:,}]", end="\r")
+            # print(f"Progress: [{self.count:,} of {self.total:,}]", end="\r")
                     
         except Exception as e:
             self.app_log(title=f"{symbol}_SYMBOL_ERR", msg=f"Error: {str(e)}")
