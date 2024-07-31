@@ -6,7 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 def cron_execute():
     scheduler = BackgroundScheduler()
     
-    scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=20))
+    scheduler.add_job(func=fetch_stocks_data, trigger=CronTrigger(minute=30))
     scheduler.start()
     
     for job in scheduler.get_jobs():

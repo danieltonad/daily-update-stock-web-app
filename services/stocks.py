@@ -50,7 +50,7 @@ def spot_crossover(series: Series):
 def fetch_stocks_data():
     from time import time
     start  = time()
-    symbols = fetch_us_symbols(limit=200)
+    symbols = fetch_us_symbols()
     app_log(title="INFO", msg=f"Symbols: {len(symbols):,}")
     
     #get stock data details
