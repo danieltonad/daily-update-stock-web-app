@@ -61,7 +61,7 @@ class Stocks( Triggers, Utils, Settings, StockSerializer):
     def fetch_stocks_data(self):
         from time import time
         start  = time()
-        self.__fetch_us_symbols(limit=1000)
+        self.__fetch_us_symbols(self.STOCK_LIMIT)
         
         self.total = len(self.symbols)
         self.app_log(title="INFO", msg=f"Symbols: {self.total:,}")
